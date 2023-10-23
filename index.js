@@ -3,7 +3,7 @@
 const express = require("express");
 const cors = require("cors");
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -29,11 +29,34 @@ async function run() {
     await client.connect();
     const database = client.db("shopDB");
     const brandCollection = database.collection("brand");
+    const productCollection = database.collection("product");
 
     app.get("/brand", async (req, res) => {
       const cursor = brandCollection.find();
       const result = await cursor.toArray();
       res.send(result);
+    });
+
+    app.post("/product", async (req, res) => {
+      const newProduct = req.body;
+      console.log(newProduct);
+      const result = await productCollection.insertOne(newProduct);
+      res.send(result);
+    });
+
+    app.get("/product/:id", async (req, res) => {
+      console.log("Get product");
+      const id = req.params;
+
+      const queryBrand = { _id: new ObjectId(id) };
+      const brand = await brandCollection.findOne(queryBrand);
+
+      const query = { brand: brand.name };
+
+      const cursor = productCollection.find(query);
+      const Products = await cursor.toArray();
+
+      res.send(Products);
     });
     /* 
     const one = {
