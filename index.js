@@ -86,22 +86,22 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/user/:id", async (req, res) => {
-      const id = req.params.id;
-      // console.log(email);
-      const query = { uid: id };
-      const user = await userCollection.findOne(query);
-      const notFound = { find: "not" };
+    // app.get("/user/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   // console.log(email);
+    //   const query = { uid: id };
+    //   const user = await userCollection.findOne(query);
+    //   const notFound = { find: "not" };
 
-      user ? res.send(user) : res.send(notFound);
-      console.log(user);
-      console.log(notFound);
-    });
-    app.post("/user", async (req, res) => {
-      const user = req.body;
-      const result = await userCollection.insertOne(user);
-      res.send(result);
-    });
+    //   user ? res.send(user) : res.send(notFound);
+    //   console.log(user);
+    //   console.log(notFound);
+    // });
+    // app.post("/user", async (req, res) => {
+    //   const user = req.body;
+    //   const result = await userCollection.insertOne(user);
+    //   res.send(result);
+    // });
     app.post("/cart", async (req, res) => {
       const user = req.body;
       const result = await cartCollection.insertOne(user);
@@ -109,6 +109,7 @@ async function run() {
     });
     app.get("/cart/:id", async (req, res) => {
       const id = req.params.id;
+      console.log(id);
       const query = { uid: id };
       const cursor = cartCollection.find(query);
       const result = await cursor.toArray();
@@ -116,7 +117,7 @@ async function run() {
     });
     app.delete("/cart/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
+
       const query = { _id: new ObjectId(id) };
       const result = await cartCollection.deleteOne(query);
       res.send(result);
