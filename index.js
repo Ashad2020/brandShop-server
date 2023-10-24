@@ -30,6 +30,8 @@ async function run() {
     const database = client.db("shopDB");
     const brandCollection = database.collection("brand");
     const productCollection = database.collection("product");
+    const userCollection = database.collection("users");
+    const cartCollection = database.collection("cart");
 
     app.get("/brand", async (req, res) => {
       const cursor = brandCollection.find();
@@ -39,36 +41,80 @@ async function run() {
 
     app.post("/product", async (req, res) => {
       const newProduct = req.body;
-      console.log(newProduct);
       const result = await productCollection.insertOne(newProduct);
       res.send(result);
     });
 
-    app.get("/product/:id", async (req, res) => {
-      console.log("Get product");
+    app.get("/products/:id", async (req, res) => {
       const id = req.params;
-
       const queryBrand = { _id: new ObjectId(id) };
       const brand = await brandCollection.findOne(queryBrand);
-
       const query = { brand: brand.name };
-
       const cursor = productCollection.find(query);
       const Products = await cursor.toArray();
-
       res.send(Products);
     });
-    /* 
-    const one = {
-      name: "Panasonic",
-      img: "https://i.ibb.co/BszPWWF/Panasonic.jpg",
-    };
-   
-    async function insertBrand() {
-      const result = await brandCollection.insertOne(one);
-    }
-    insertBrand();
-    */
+    app.get("/product/:id", async (req, res) => {
+      console.log(req.params);
+      const id = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await productCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.patch("/product/:id", async (req, res) => {
+      const id = req.params;
+      const updatedProduct = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          brand: updatedProduct.brand,
+          productName: updatedProduct.productName,
+          photoUrl: updatedProduct.photoUrl,
+          category: updatedProduct.category,
+          price: updatedProduct.price,
+          description: updatedProduct.description,
+          rating: updatedProduct.rating,
+        },
+      };
+      const result = await productCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(email);
+      const query = { uid: id };
+      const user = await userCollection.findOne(query);
+      const notFound = { find: "not" };
+
+      user ? res.send(user) : res.send(notFound);
+      console.log(user);
+      console.log(notFound);
+    });
+    app.post("/user", async (req, res) => {
+      const user = req.body;
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+    app.post("/cart", async (req, res) => {
+      const user = req.body;
+      const result = await cartCollection.insertOne(user);
+      res.send(result);
+    });
+    app.get("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { uid: id };
+      const cursor = cartCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
