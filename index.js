@@ -1,5 +1,3 @@
-// BrandShop
-// fJzGLI3lfj1tWau3
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
@@ -11,12 +9,10 @@ const port = process.env.PORT || 5000;
 // middlewares
 app.use(cors());
 app.use(express.json());
-const userDB = process.env.USER_MON;
-const passDB = process.env.PASS_MON;
 
 // const uri =
 //   "mongodb+srv://BrandShop:fJzGLI3lfj1tWau3@cluster0.abv0rui.mongodb.net/?retryWrites=true&w=majority";
-const uri = `mongodb+srv://${userDB}:${passDB}@cluster0.abv0rui.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.USER_MON}:${process.env.PASS_MON}@cluster0.abv0rui.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -37,6 +33,9 @@ async function run() {
     const userCollection = database.collection("users");
     const cartCollection = database.collection("cart");
 
+    app.get("/", (req, res) => {
+      res.send("Server running");
+    });
     app.get("/brand", async (req, res) => {
       const cursor = brandCollection.find();
       const result = await cursor.toArray();
@@ -137,9 +136,10 @@ async function run() {
   }
 }
 run().catch(console.dir);
-// app.get("/", (req, res) => {
-//   res.send("I am live");
-// });
+
+app.get("/", (req, res) => {
+  res.send("I am live");
+});
 
 app.listen(port, () => {
   console.log("I am listening on port", port);
